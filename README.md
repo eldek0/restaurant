@@ -10,4 +10,8 @@ Para conectar los otros roles, compartir estas colas entre los actores:
 - `BlockingQueue<Table> cleaningRequests`: aparece una mesa cuando sale el último cliente. El mozo la limpia y llama `diningRoom.markClean(table)`.
 - `BlockingQueue<Payment> paymentQueue`: el cajero cobra al cliente indicado por `payment.getClientId()` y confirma con `payment.complete()`.
 
+Los `Cashier` comparten esa única cola. Se crean `Config.Y` instancias, cada una en el pool de empleados. Al finalizar, llamar `Cashier.stop()` únicamente después de que todos los clientes terminaron o ya no puedan llegar a la cola; así los cajeros procesan los pagos pendientes antes de detenerse.
+
+`ClientGenerator` crea clientes con identificadores únicos a intervalos aleatorios entre `Config.TPmin` y `Config.TPmax` y los envía al pool de clientes. Al cumplirse `Config.T`, llamar primero `ClientGenerator.stop()` y esperar que termine su hilo; luego llamar `diningRoom.close()` para impedir ingresos y liberar a quienes esperaban afuera.
+
 Al llegar a `Config.T`, detener la generación de clientes y llamar `diningRoom.close()`. Esto despierta a quienes esperan afuera y cancela a los grupos que aún no realizaron el pedido. Los pedidos ya enviados a cocina continúan normalmente. Mantener activos mozos y cajeros hasta que terminen esos clientes y se limpien las mesas.
