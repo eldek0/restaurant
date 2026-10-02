@@ -12,11 +12,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-/** Run with javac/java; verifies that several cashiers drain one shared queue. */
 public class CashierTest {
     public static void main(String[] args) throws Exception {
         BlockingQueue<Payment> queue = new LinkedBlockingQueue<>();
-        List<Cashier> cashiers = List.of(new Cashier(0, queue), new Cashier(1, queue));
+        List<Cashier> cashiers = List.of(
+                new Cashier(1, queue, null),
+                new Cashier(2, queue, null));
         ExecutorService pool = Executors.newFixedThreadPool(cashiers.size());
         cashiers.forEach(pool::submit);
 

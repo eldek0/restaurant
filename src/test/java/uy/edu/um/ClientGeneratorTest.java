@@ -3,7 +3,7 @@ package uy.edu.um;
 import uy.edu.um.entities.DiningRoom;
 import uy.edu.um.entities.Menu;
 import uy.edu.um.entities.Payment;
-import uy.edu.um.entities.Table;
+import uy.edu.um.entities.WaiterTask;
 import uy.edu.um.entities.actors.ClientGenerator;
 
 import java.util.List;
@@ -13,16 +13,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-/** Run with javac/java; verifies generation and stopping admissions. */
 public class ClientGeneratorTest {
     public static void main(String[] args) throws Exception {
-        BlockingQueue<Table> waiterRequests = new LinkedBlockingQueue<>();
-        BlockingQueue<Table> cleaningRequests = new LinkedBlockingQueue<>();
+        BlockingQueue<WaiterTask> waiterTasks = new LinkedBlockingQueue<>();
         BlockingQueue<Payment> payments = new LinkedBlockingQueue<>();
-        DiningRoom room = new DiningRoom(1, 2, waiterRequests, cleaningRequests);
-        ExecutorService clientPool = Executors.newFixedThreadPool(4);
+        DiningRoom room = new DiningRoom(1, 2, waiterTasks, null);
+        ExecutorService clientPool = Executors.newCachedThreadPool();
         ClientGenerator generator = new ClientGenerator(
-                room, List.of(new Menu("Test", 1, 1)), payments, clientPool, 20, 30);
+                room, List.of(new Menu("Test", 1, 1)), payments, clientPool,
+                null, 20, 30);
         Thread generatorThread = new Thread(generator, "client-generator-test");
 
         generatorThread.start();
